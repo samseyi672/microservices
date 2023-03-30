@@ -1,0 +1,187 @@
+version: '3.7'
+services:
+  ## Eureka Server
+  discovery-server:
+    container_name: discovery-server
+    build:
+      context: ./microservices/discovery-server/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    restart: always
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+    networks:
+      - digitalis
+
+  mysqldb:
+    image: 'mysql:8.0'
+    restart: always
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: jetstoredb
+      MYSQL_ROOT_PASSWORD: root #the containers will see eachother bcos they are inside the same networks
+      MYSQL_PASSWORD: root
+    networks:
+      - digitalis
+
+  api-gateway:
+    build:
+      context: ./microservices/apigateway_security_ms/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "7073:7073"
+    expose:
+      - "8181"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+    depends_on:
+      - zipkin
+      - discovery-server
+    networks:
+      - digitalis
+
+  ## sales-Service Docker Compose Config
+  report-service:
+    container_name: report-service
+    build:
+      context: ./microservices/report_ms/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    restart: always
+    ports:
+      - "7074:7074"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/mintydb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_APPLICATION_JSON: '{
+             "initialization-mode": "always",
+             "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver",
+             "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect",
+              "spring.jpa.hibernate.ddl-auto" : "create"
+                }'
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - mysqldb
+    links:
+      - mysqldb
+    volumes:
+      - ./fileandimages:/fileandimages
+    networks:
+      - digitalis
+
+  account-service:
+    container_name: account-service
+    build:
+      context: ./microservices/account_ms/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    restart: always
+    ports:
+      - "7076:7076"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/mintydb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_APPLICATION_JSON: '{
+             "initialization-mode": "always",
+             "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver",
+             "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect",
+              "spring.jpa.hibernate.ddl-auto" : "update"
+                }'
+    #       SPRING_REDIS_HOST: cache
+    #       SPRING_REDIS_PORT: 6379
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - mysqldb
+    links:
+      - mysqldb
+    volumes:
+      - ./fileandimages:/fileandimages
+    networks:
+      - digitalis
+
+  certificate-service:
+    container_name: certificate-service
+    build:
+      context: ./microservices/certificate_ms/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    restart: always
+    ports:
+      - "7076:7076"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/sampledb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      SPRING_APPLICATION_JSON: '{
+             "initialization-mode": "always",
+             "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver",
+             "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect",
+              "spring.jpa.hibernate.ddl-auto" : "update"
+                }'
+    #       SPRING_REDIS_HOST: cache
+    #       SPRING_REDIS_PORT: 6379
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - mysqldb
+    links:
+      - mysqldb
+    volumes:
+      - ./fileandimages:/fileandimages
+    networks:
+      - digitalis
+
+  multinant-service:
+    container_name: multinant-service
+    build:
+      context: ./microservices/multitenant_ms/Dockerfile.layered
+      dockerfile: ./Dockerfile.layered
+    restart: always
+    ports:
+      - "4036:4036"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - mysqldb
+    links:
+      - mysqldb
+    volumes:
+      - ./fileandimages:/fileandimages
+    networks:
+      - digitalis
+
+
+  ## Prometheus for reporting and monitoring
+  prometheus:
+    image: prom/prometheus:v2.37.1
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - sales-service
+    networks:
+      - digitalis
+
+networks:
+    digitalis:
+volumes:
+  fileandimages:
+  db:

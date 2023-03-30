@@ -1,0 +1,630 @@
+apiVersion: v1
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: account-service
+      name: account-service
+    spec:
+      ports:
+        - name: "7076"
+          port: 7076
+          targetPort: 7076
+      selector:
+        io.kompose.service: account-service
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: api-gateway
+      name: api-gateway
+    spec:
+      ports:
+        - name: "7073"
+          port: 7073
+          targetPort: 7073
+        - name: "8181"
+          port: 8181
+          targetPort: 8181
+      selector:
+        io.kompose.service: api-gateway
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: certificate-service
+      name: certificate-service
+    spec:
+      ports:
+        - name: "7076"
+          port: 7076
+          targetPort: 7076
+      selector:
+        io.kompose.service: certificate-service
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: discovery-server
+      name: discovery-server
+    spec:
+      ports:
+        - name: "8761"
+          port: 8761
+          targetPort: 8761
+      selector:
+        io.kompose.service: discovery-server
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: multinant-service
+      name: multinant-service
+    spec:
+      ports:
+        - name: "4036"
+          port: 4036
+          targetPort: 4036
+      selector:
+        io.kompose.service: multinant-service
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mysqldb
+      name: mysqldb
+    spec:
+      ports:
+        - name: "3308"
+          port: 3308
+          targetPort: 3306
+      selector:
+        io.kompose.service: mysqldb
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: prometheus
+      name: prometheus
+    spec:
+      ports:
+        - name: "9090"
+          port: 9090
+          targetPort: 9090
+      selector:
+        io.kompose.service: prometheus
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: report-service
+      name: report-service
+    spec:
+      ports:
+        - name: "7074"
+          port: 7074
+          targetPort: 7074
+      selector:
+        io.kompose.service: report-service
+    status:
+      loadBalancer: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: account-service
+      name: account-service
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: account-service
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: account-service
+        spec:
+          containers:
+            - env:
+                - name: SPRING_APPLICATION_JSON
+                  value: '{ "initialization-mode": "always", "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver", "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect", "spring.jpa.hibernate.ddl-auto" : "update" }'
+                - name: SPRING_DATASOURCE_PASSWORD
+                  value: root
+                - name: SPRING_DATASOURCE_URL
+                  value: jdbc:mysql://mysqldb:3306/mintydb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+                - name: SPRING_DATASOURCE_USERNAME
+                  value: root
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: account-service
+              name: account-service
+              ports:
+                - containerPort: 7076
+              resources: {}
+              volumeMounts:
+                - mountPath: /fileandimages
+                  name: account-service-claim0
+          restartPolicy: Always
+          volumes:
+            - name: account-service-claim0
+              persistentVolumeClaim:
+                claimName: account-service-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: account-service-claim0
+      name: account-service-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      creationTimestamp: null
+      name: digitalis
+    spec:
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  io.kompose.network/digitalis: "true"
+      podSelector:
+        matchLabels:
+          io.kompose.network/digitalis: "true"
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: api-gateway
+      name: api-gateway
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: api-gateway
+      strategy: {}
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: api-gateway
+        spec:
+          containers:
+            - env:
+                - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
+                  value: ' TRACE'
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: api-gateway
+              name: api-gateway
+              ports:
+                - containerPort: 7073
+                - containerPort: 8181
+              resources: {}
+          restartPolicy: Always
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: certificate-service
+      name: certificate-service
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: certificate-service
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: certificate-service
+        spec:
+          containers:
+            - env:
+                - name: SPRING_APPLICATION_JSON
+                  value: '{ "initialization-mode": "always", "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver", "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect", "spring.jpa.hibernate.ddl-auto" : "update" }'
+                - name: SPRING_DATASOURCE_PASSWORD
+                  value: root
+                - name: SPRING_DATASOURCE_URL
+                  value: jdbc:mysql://mysqldb:3306/sampledb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+                - name: SPRING_DATASOURCE_USERNAME
+                  value: root
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: certificate-service
+              name: certificate-service
+              ports:
+                - containerPort: 7076
+              resources: {}
+              volumeMounts:
+                - mountPath: /fileandimages
+                  name: certificate-service-claim0
+          restartPolicy: Always
+          volumes:
+            - name: certificate-service-claim0
+              persistentVolumeClaim:
+                claimName: certificate-service-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: certificate-service-claim0
+      name: certificate-service-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: discovery-server
+      name: discovery-server
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: discovery-server
+      strategy: {}
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: discovery-server
+        spec:
+          containers:
+            - env:
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: discovery-server
+              name: discovery-server
+              ports:
+                - containerPort: 8761
+              resources: {}
+          restartPolicy: Always
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: multinant-service
+      name: multinant-service
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: multinant-service
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: multinant-service
+        spec:
+          containers:
+            - env:
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: multinant-service
+              name: multinant-service
+              ports:
+                - containerPort: 4036
+              resources: {}
+              volumeMounts:
+                - mountPath: /fileandimages
+                  name: multinant-service-claim0
+          restartPolicy: Always
+          volumes:
+            - name: multinant-service-claim0
+              persistentVolumeClaim:
+                claimName: multinant-service-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: multinant-service-claim0
+      name: multinant-service-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mysqldb
+      name: mysqldb
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: mysqldb
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: mysqldb
+        spec:
+          containers:
+            - env:
+                - name: MYSQL_DATABASE
+                  value: jetstoredb
+                - name: MYSQL_PASSWORD
+                  value: root
+                - name: MYSQL_ROOT_PASSWORD
+                  value: root
+              image: mysql:8.0
+              name: mysqldb
+              ports:
+                - containerPort: 3306
+              resources: {}
+              volumeMounts:
+                - mountPath: /var/lib/mysql
+                  name: mysqldb-claim0
+          restartPolicy: Always
+          volumes:
+            - name: mysqldb-claim0
+              persistentVolumeClaim:
+                claimName: mysqldb-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mysqldb-claim0
+      name: mysqldb-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: prometheus
+      name: prometheus
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: prometheus
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: prometheus
+        spec:
+          containers:
+            - image: prom/prometheus:v2.37.1
+              name: prometheus
+              ports:
+                - containerPort: 9090
+              resources: {}
+              volumeMounts:
+                - mountPath: /etc/prometheus/prometheus.yml
+                  name: prometheus-claim0
+          restartPolicy: Always
+          volumes:
+            - name: prometheus-claim0
+              persistentVolumeClaim:
+                claimName: prometheus-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: prometheus-claim0
+      name: prometheus-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: report-service
+      name: report-service
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: report-service
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: C:\kompose\kompose.exe convert --out k8s2
+            kompose.version: 1.27.0 (b0ed6a2c9)
+          creationTimestamp: null
+          labels:
+            io.kompose.network/digitalis: "true"
+            io.kompose.service: report-service
+        spec:
+          containers:
+            - env:
+                - name: SPRING_APPLICATION_JSON
+                  value: '{ "initialization-mode": "always", "spring.datasource.driver-class-name": "com.mysql.cj.jdbc.Driver", "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL8Dialect", "spring.jpa.hibernate.ddl-auto" : "create" }'
+                - name: SPRING_DATASOURCE_PASSWORD
+                  value: root
+                - name: SPRING_DATASOURCE_URL
+                  value: jdbc:mysql://mysqldb:3306/mintydb?createDatabaseIfNotExists=true&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+                - name: SPRING_DATASOURCE_USERNAME
+                  value: root
+                - name: SPRING_PROFILES_ACTIVE
+                  value: docker
+              image: report-service
+              name: report-service
+              ports:
+                - containerPort: 7074
+              resources: {}
+              volumeMounts:
+                - mountPath: /fileandimages
+                  name: report-service-claim0
+          restartPolicy: Always
+          volumes:
+            - name: report-service-claim0
+              persistentVolumeClaim:
+                claimName: report-service-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: report-service-claim0
+      name: report-service-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+kind: List
+metadata: {}
+
