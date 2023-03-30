@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    dataSourceClassName: org.springframework.jdbc.datasource.DriverManagerDataSource
+    name: exodb
+    dataSourceProperties:
+      url: jdbc:mysql://localhost:3308/sampledb
+    username: sa
+    password: Password@123
+    maximumPoolSize: 2
+
+  fin-datasource:
+    dataSourceClassName: oracle.jdbc.pool.OracleDataSource
+    name: finacledb
+    dataSourceProperties:
+      url: jdbc:mysql://localhost:3308/sampledb2
+      connectionCachingEnabled: true
+    username: crmuser
+    password: crmuser_12
+    connectionTestQuery: select 1 from dual
+    poolName: FindbPool
+    maximumPoolSize: 2
+
+  duis-datasource:
+    dataSourceClassName: org.springframework.jdbc.datasource.DriverManagerDataSource
+    name: duisdb
+    dataSourceProperties:
+      url: jdbc:mysql://localhost:3306/sampledb3
+    username: sa
+    password: P@ssw0rd
+    poolName: DuisdbPool
+    maximumPoolSize: 20
+
+  customerinsight-dataSource:
+    dataSourceClassName: org.springframework.jdbc.datasource.DriverManagerDataSource
+    name: insightdb
+    dataSourceProperties:
+      url: jdbc:mysql://localhost:3308/sampledb4
+    username: sa
+    password: Password@123
+    poolName: insightdbPool
+    maximumPoolSize: 20
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        show_sql: true
+        format_sql: true
+        hbm2ddl.auto: update
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        enable_lazy_load_no_trans: true
+        implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
